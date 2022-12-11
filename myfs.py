@@ -67,6 +67,26 @@ def write(BLOCK_IDX, data):
         edit_block(BLOCK_SIZE * i, j)
 
 
+def removeDirNode(BLOCK_IDX):
+    dirNode_list = [BLOCK_IDX]
+    with open('./Node', 'rb') as f:
+        f.seek(BLOCK_IDX * BLOCK_SIZE)
+        data =f.read(BLOCK_SIZE)
+        while data[-3:] != b'\x00\x00\x00':
+            point = data[-3:]
+            #data = data[:-3]
+            block_int = int.from_bytes(point,'little')
+            f.seek(BLOCK_SIZE*block_int)
+            data = f.read(BLOCK_SIZE)
+            dirNode_list.append(block_int)
+    print(dirNode_list)
+    for d in dirNode_list:
+        edit_block(d * BLOCK_SIZE, b'\x00'*BLOCK_SIZE)
+        free_nodes.append(d)
+
+
+
+
 def read(BLOCK_IDX) -> DirNode:
     data = b''
     with open('./Node', 'rb') as f:
@@ -108,13 +128,9 @@ class NotEnoughSpace(Exception):
         self.message = message
 
 
-def removeNode(BLOCK_IDX):
-    pass
-
-
 if __name__ == '__main__':
     print(count)
     print(free_nodes[0])
     # mkdir('root', 'passwd', 1)
-    pprint(read(3).__dict__)
+    pprint(read(1).__dict__)
     # pprint(read(2)['root'].__dict__)

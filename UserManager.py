@@ -4,6 +4,8 @@ import tempfile
 from myfs import *
 from typing import List, Tuple, Dict
 
+BLOCK_SIZE = 1*1024
+
 
 class UserManager:
     def __init__(self, username, password):
@@ -11,15 +13,23 @@ class UserManager:
         self.username = username
         self.password = password
         self.cwd = '/'
+        # 用户当前所处目录的块地址
         self.Node = 1
 
     def Remove(self, filename):
-        # 获得当前目录的块地址
+        # 获得当前目录的块地址，然后读入目录信息
         cur = read(self.Node)
-        try:
-            next = cur.dir_dict[filename]
-        except:
-            return
+        # pprint(cur.__dict__)
+        # print(cur.dir_dict[filename])
+        # next是要remove的文件或目录的首块地址
+        # try:
+        next = cur.dir_dict[filename]
+        # except:
+        #     return
+        # 获取所有存储该目录或文件的所有块地址，并删除该文件或目录
+        removeDirNode(next)
+        del cur.dir_dict[filename]
+        write(self.Node,pickle.dumps(cur))
 
 
     def Edit_file(self, filename):

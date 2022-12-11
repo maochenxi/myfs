@@ -12,6 +12,6 @@ class Permission:
         self.permission_other = other
         self.username = username
         self.time = time
-        self.next = -1
+        # self.next = -1
         # -:文件，d:目录
         self.type = type

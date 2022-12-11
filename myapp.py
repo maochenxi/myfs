@@ -90,8 +90,8 @@ class Session(App):
                     self.mount(Label(data))
 
                 elif self.shell.startswith('rm'):
-                    pass
-                    # self.user.Remove(filename)
+                    # pass
+                    self.user.Remove(self.shell.strip().split(' ')[-1])
 
                 elif self.shell.startswith('rename'):
                     if len(self.shell.strip().split(' '))==3:
