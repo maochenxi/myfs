@@ -8,9 +8,10 @@ BLOCK_SIZE = 1*1024
 
 
 class UserManager:
-    def __init__(self, username, password):
+    def __init__(self, username, password,group):
         self.user_group_dict = {}
         self.username = username
+        self.group = group
         self.password = password
         self.cwd = '/'
         # 用户当前所处目录的块地址
@@ -24,6 +25,10 @@ class UserManager:
         # next是要remove的文件或目录的首块地址
         # try:
         next = cur.dir_dict[filename]
+        data = read(next)
+        if(self.check(data.permission,1)):
+            print("用户组没有写权限!")
+            return ""
         # except:
         #     return
         # 获取所有存储该目录或文件的所有块地址，并删除该文件或目录
@@ -42,6 +47,9 @@ class UserManager:
         #Todo 先判断是否有锁，有写锁就打开失败
         # 实现读写互斥、写写互斥
         data = read(next)
+        if(self.check(data.permission,1)):
+            print("用户组没有写权限!")
+            return ""
         if(data.lock_write==1):
             print("有其他用户在写，写写互斥，写入失败！")
             return ""
@@ -71,16 +79,20 @@ class UserManager:
             next = cur.dir_dict[src]
         except:
             return
+        data = read(next)
+        if(self.check(data.permission,1)):
+            print("用户组没有写权限!")
+            return ""
         del cur.dir_dict[src]
         cur.dir_dict[dst] = next
         write(self.Node,pickle.dumps(cur))
-        data = read(next)
+        
         data.dirname = dst
         write(next,pickle.dumps(data))
 
     def Create_Dir(self, dir, type='d'):
         '''只支持当前目录下创建'''
-        mkdir(self.username, dir, self.Node, type)
+        mkdir(self.username, dir, self.Node, type,self.group)
 
     def Ls_File(self, node: int) -> Dict[str, int]:
         list_file = read(node)
@@ -153,7 +165,33 @@ class UserManager:
         except:
             return
         data = read(next)
+        # 判断是否有读的权限
+        if(self.check(data.permission,0)):
+            print("用户组没有读权限!")
+            return ""
         if(data.lock_write==1):
             print("有其他用户在写，读写互斥，读取失败！")
             return ""
         return data.content
+
+    def check(self,permission: Permission,wr):
+        if(permission.gruop==self.group):
+            per = permission.permission_group
+        else:
+            per = permission.permission_other
+        # 如果是写操作
+        if(wr==1):
+            if(per in [2,3,6,7]):
+                return 1
+            else:
+                return 0
+        elif(wr==0):
+            if(per in [4,5,6,7]):
+                return 1
+            else:
+                return 0
+        else:
+            if(per in [1,3,5,7]):
+                return 1
+            else:
+                return 0

@@ -100,7 +100,7 @@ def read(BLOCK_IDX) -> DirNode:
     return pickle.loads(data.strip(b'\x00'))
 
 
-def mkdir(user, dirname, BLOCK_IDX,type):
+def mkdir(user, dirname, BLOCK_IDX,type,group):
     global free_nodes
     if len(free_nodes) == 0:
         raise NotEnoughSpace('not enough space to write')
@@ -109,7 +109,7 @@ def mkdir(user, dirname, BLOCK_IDX,type):
     # create dir node
     dir = DirNode(dirname)
     dir.prevdir = dirnode.node
-    dir.permission = Permission(dirname, user, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), type, 7, 4, 4)
+    dir.permission = Permission(dirname, user, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), type, 7, 7, 4,group)
     dir.node = free_nodes[0]
     # print(free_nodes[0], b'\x01' + pickle.dumps(dir).ljust(BLOCK_SIZE - 4, b'\x00') + b'\x00' * 3)
     write(free_nodes[0], pickle.dumps(dir))

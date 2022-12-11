@@ -33,7 +33,7 @@ def init_root():
     # 时间类型转为字符串类型
     initRootTime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     rootDirNode = DirNode(rootDirName)
-    rootDirNode.permission = Permission(rootDirName, rootUserName, initRootTime, 'd', 7, 4, 4)
+    rootDirNode.permission = Permission(rootDirName, rootUserName, initRootTime, 'd', 7, 4, 4,"root")
     edit_block(BLOCK_SIZE, b'\x01'+pickle.dumps(rootDirNode).ljust(BLOCK_SIZE-1,b'\x00'))
 
     # user_dict = {}

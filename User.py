@@ -3,3 +3,4 @@ class User:
         self.cwd = b'/'
         self.username = name
         self.Node = None
+        self.group = None

@@ -9,6 +9,8 @@ from textual.widget import Widget
 from textual.widgets import Header, Footer, Input, TreeNode, Tree, Label
 
 from UserManager import *
+# importing required libraries
+import mysql.connector
 
 
 class Name(Widget):
@@ -37,17 +39,31 @@ class Session(App):
 
     # input.
     def compose(self) -> ComposeResult:
-        yield Header()
-        yield Footer()
+        # yield Header()
+        # yield Footer()
         yield Container(self.comp, id="sh")
 
     def on_input_changed(self, event: input.Changed):
         self.shell = self.input.value
-        log("input shell is ", self.shell)
+        # log("input shell is ", self.shell)
 
     def _on_key(self, event: events.Key) -> None:
         if event.key == 'enter':
             if not self.login:
+                #db
+                dataBase = mysql.connector.connect(
+                    host ="localhost",
+                    user ="root",
+                    passwd ="maochenxi824048",
+                    database = "filesystem"
+                )
+                print(dataBase)
+                cursorObject = dataBase.cursor()
+                query = "SELECT username, password,group FROM STUDENT"
+  
+                # table created
+                cursorObject.execute(studentRecord)
+                dataBase.close()
                 self.username = self.uname.value
                 self.password = self.pwd.value
                 # Todo select password from database
@@ -60,7 +76,7 @@ class Session(App):
                     self.comp.remove()
                     self.mount(self.input)
                     self.input.styles.dock = "bottom"
-                    self.user = UserManager(self.username, self.password)
+                    self.user = UserManager(self.username, self.password,'root')
             else:
                 self.shell = self.shell[2:]
                 if self.shell.strip(' ') == 'ls':
@@ -71,16 +87,17 @@ class Session(App):
                     except:
                         pass
                     node = Tree(label="dir", data=None)
+                    node.auto_expand=True
                     def construct_tree(node:TreeNode,dir:int):
                         res = self.user.Ls_File(dir)
                         for i, k in res.items():
                             j = read(k).permission
-                            cur = node.add(f'{i} {j.time} {j.permission_cur} {j.permission_group} {j.permission_other}',allow_expand=j.type=='d',expand=True)
+                            cur = node.add(f'{i} {j.username} {j.group} {j.time} {judge(j.permission_group)} {judge(j.permission_other)}',allow_expand=j.type=='d',expand=True)
                             if j.type=='d':
                                 construct_tree(cur,k)
                     self.mount(node)
                     construct_tree(node.root,self.user.Node)
-
+                    node.expand=True
                 elif self.shell.startswith('edit'):
                     filename = self.shell.strip().split(' ')[-1]
                     self.user.Edit_file(filename)
@@ -118,3 +135,17 @@ class Session(App):
 if __name__ == "__main__":
     app = Session()
     app.run()
+
+def judge(per: int) -> str:
+    if per==7:
+        return 'rwx'
+    elif per ==6:
+        return 'rw-'
+    elif per == 5:
+        return 'r-x'
+    elif per==4:
+        return 'r--'
+    elif per==2:
+        return '-w-'
+    elif per==1:
+        return '--x'
