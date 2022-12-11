@@ -1,0 +1,19 @@
+
+
+Vertical{
+    /*layout: horizontal;*/
+    /*dock: middle;*/
+    background: $boost;
+    height: 80%;
+    width: 100%;
+    margin: 1;
+    /*min-width:100;*/
+    padding: 20;
+    text-align: center;
+    overflow: hidden;
+}
+input {
+    height: 10%;
+    dock: bottom;
+    margin-top: 1;
+}
