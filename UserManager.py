@@ -14,7 +14,13 @@ class UserManager:
         self.Node = 1
 
     def Remove(self, filename):
-        pass
+        # 获得当前目录的块地址
+        cur = read(self.Node)
+        try:
+            next = cur.dir_dict[filename]
+        except:
+            return
+
 
     def Edit_file(self, filename):
         cur = read(self.Node)
@@ -73,11 +79,14 @@ class UserManager:
         return files
 
     def Change_Dir(self, dir: str) -> str:
+        print("cur cwd is",self.cwd)
+        print("cur Node is",self.Node)
         #Todo 完成上一级目录指针 dir_list['..] = idx
         # 空的路径回到根目录
         if dir == '':
-            #self.cwd = '/'
+            self.cwd = '/'
             self.Node = 1
+            return 0
             #return self.cwd
         # assert len(dir)>0
         # /结尾，把 / 去掉
@@ -85,8 +94,16 @@ class UserManager:
             dir = dir[:-1]
         # 如果以..开头，就是返回上一级目录
         if(dir.startswith('..')):
-            cur_node = read(cur_node)
-            self.node = cur_node.prevdir
+            cur_node = read(self.Node)
+            self.Node = cur_node.prevdir
+            print("pre node is ",self.Node)
+            x = self.cwd.split('/')
+            self.cwd = '/'+'/'.join(x[:-1])
+            if(dir=='../' or dir == '..'):
+                return 0
+            dir = dir[3:]
+        if dir=='':
+            return 0
         # 以 / 开头，如果只有/，就是回到根目录，如果不仅有/，就一层一层进入到达指定路径
         if dir.startswith('/'):
             if dir != '/':
@@ -98,11 +115,11 @@ class UserManager:
                     # print(cur_node.dir_dict)
                     cur_node = cur_node.dir_dict[i]
                 self.Node = cur_node
-                #self.cwd = dir
+                self.cwd = dir
                 #return self.cwd
             else:
                 self.Node = 1
-               # self.cwd = '/'
+                self.cwd = '/'
                 #return self.cwd
         else:
             dirlist = dir.split('/')
@@ -112,7 +129,10 @@ class UserManager:
                 cur_node = read(cur_node)
                 cur_node = cur_node.dir_dict[i]
             self.Node = cur_node
-            #self.cwd = self.cwd + '/' + dir
+            if self.cwd!='/':
+                self.cwd = self.cwd + '/' + dir
+            else:
+                self.cwd = self.cwd+dir
         
 
     def cat(self, filename: str):

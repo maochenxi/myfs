@@ -108,6 +108,10 @@ class NotEnoughSpace(Exception):
         self.message = message
 
 
+def removeNode(BLOCK_IDX):
+    pass
+
+
 if __name__ == '__main__':
     print(count)
     print(free_nodes[0])
