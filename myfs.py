@@ -88,7 +88,9 @@ def mkdir(user, dirname, BLOCK_IDX,type):
     dirnode = read(BLOCK_IDX)
     # create dir node
     dir = DirNode(dirname)
+    dir.prevdir = dirnode.node
     dir.permission = Permission(dirname, user, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), type, 7, 4, 4)
+    dir.node = free_nodes[0]
     # print(free_nodes[0], b'\x01' + pickle.dumps(dir).ljust(BLOCK_SIZE - 4, b'\x00') + b'\x00' * 3)
     write(free_nodes[0], pickle.dumps(dir))
     # update parent node
