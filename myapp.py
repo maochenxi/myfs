@@ -37,7 +37,7 @@ def judge(per: int) -> str:
         return '-w-'
     elif per==1:
         return '--x'
-        
+
 class Session(App):
     CSS_PATH = "refresh01.css"
     # input line
@@ -69,7 +69,6 @@ class Session(App):
         if event.key == 'enter':
             if not self.login:
                 #db
-                print(dataBase)
                 cursorObject = dataBase.cursor()
                 # query = "SELECT username, password,group FROM user where username = "+self.uname.value
                 cursorObject.execute('''SELECT * FROM user where username = %s''',(self.uname.value,))
@@ -95,7 +94,7 @@ class Session(App):
                     self.mount(self.input)
                     self.input.styles.dock = "bottom"
                     self.user = UserManager(self.username, self.password, self.group)
-                    dataBase.close()
+        
             else:
                 self.shell = self.shell[2:]
                 if self.shell.strip(' ') == 'ls':
@@ -161,7 +160,30 @@ class Session(App):
                     if len(self.shell.split(' ')) == 3:
                         self.user.chown(self.shell.split(' ')[-2],self.shell.split(' ')[-1])
 
+                # 修改用户的用户组 chuser username group  
+                elif self.shell.startswith('chuser'):
+                    if len(self.shell.split(' ')) == 3:
+                        username = self.shell.split(' ')[-2]
+                        group = self.shell.split(' ')[-1]
+                        isRoot = (self.user.username == 'root')
+                        if(not isRoot):
+                            pass
+                        cursorObject = dataBase.cursor()
+                        cursorObject.execute('''UPDATE user SET `group` = %s where username = %s''',(group,username))
+
+                # 添加新用户 aduser username password  
+                elif self.shell.startswith('aduser'):
+                    if len(self.shell.split(' ')) == 3:
+                        username = self.shell.split(' ')[-2]
+                        password = self.shell.split(' ')[-1]
+                        isRoot = (self.user.username == 'root')
+                        if(not isRoot):
+                            pass
+                        cursorObject = dataBase.cursor()
+                        cursorObject.execute('''INSERT INTO user (username, password, `group`) values (%s,%s,%s);''',(username,password,username))
+
                 self.input.value = '$ '
+
 
 
 if __name__ == "__main__":
