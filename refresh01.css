@@ -1,16 +1,23 @@
-
-
+Container{
+    align: center middle;
+    margin: 1;
+    padding: 1;
+    height: 100%;
+    width: 100%;
+}
 Vertical{
-    /*layout: horizontal;*/
     /*dock: middle;*/
     background: $boost;
-    height: 80%;
-    width: 100%;
-    margin: 1;
     /*min-width:100;*/
-    padding: 20;
     text-align: center;
-    overflow: hidden;
+    align: center middle;
+    
+}
+Name {
+    padding: 0;
+    align: center middle;
+    height: auto;
+    width: auto;
 }
 input {
     height: 10%;

@@ -9,10 +9,13 @@ class Permission:
         # READ | WRITE | EXEC:1 2 3 4 5 6 7
         self.permission_cur = cur
         self.permission_group = group_per
+        # 不是这个用户组的用户的权限是什么
         self.permission_other = other
-        self.group = group
-        self.username = username
+        # 文件的用户组
+        self.group:str = group
+        # 文件所属的用户
+        self.username:str  = username
         self.time = time
         # self.next = -1
         # -:文件，d:目录
-        self.type = type
+        self.type:str = type

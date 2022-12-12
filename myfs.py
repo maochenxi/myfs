@@ -126,7 +126,7 @@ class NotEnoughSpace(Exception):
     def __init__(self, message):
         super().__init__(message)
         self.message = message
-
+f.close()
 
 if __name__ == '__main__':
     print(count)

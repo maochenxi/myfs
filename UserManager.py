@@ -16,6 +16,51 @@ class UserManager:
         self.cwd = '/'
         # 用户当前所处目录的块地址
         self.Node = 1
+    # 修改文件的权限
+    def chmod(self,filename,type,permission):
+        cur = read(self.Node)
+        next = cur.dir_dict[filename]
+        data = read(next)
+        if(not(self.username==data.permission.username or self.username == 'root')):
+            pass
+        if(not self.check(data.permission,1)):
+            print("用户组没有写权限!")
+            return ""
+        if(type=="cur"):
+            data.permission.permission_cur = permission
+        elif(type=="group"):
+            data.permission.permission_group = permission
+        else:
+            data.permission.permission_other = int(permission)
+        write(next,pickle.dumps(data))
+
+    # 修改文件用户组
+    def chgrp(self,filename,group):
+        cur = read(self.Node)
+        next = cur.dir_dict[filename]
+        data = read(next)
+        if(not(self.username==data.permission.username or self.username == 'root')):
+            pass
+        if(not self.check(data.permission,1)):
+            print("用户组没有写权限!")
+            return ""
+        data.permission.group = group
+        write(next,pickle.dumps(data))
+
+    # 修改文件所属的用户
+    def chown(self,filename,username):
+        
+        cur = read(self.Node)
+        next = cur.dir_dict[filename]
+        data = read(next)
+        if(not(self.username==data.permission.username or self.username == 'root')):
+            print("没有权限修改")
+            pass
+        if(not self.check(data.permission,1)):
+            print("用户组没有写权限!")
+            return ""
+        data.permission.username = username
+        write(next,pickle.dumps(data))
 
     def Remove(self, filename):
         # 获得当前目录的块地址，然后读入目录信息
@@ -26,7 +71,7 @@ class UserManager:
         # try:
         next = cur.dir_dict[filename]
         data = read(next)
-        if(self.check(data.permission,1)):
+        if(not self.check(data.permission,1)):
             print("用户组没有写权限!")
             return ""
         # except:
@@ -47,7 +92,7 @@ class UserManager:
         #Todo 先判断是否有锁，有写锁就打开失败
         # 实现读写互斥、写写互斥
         data = read(next)
-        if(self.check(data.permission,1)):
+        if(not self.check(data.permission,1)):
             print("用户组没有写权限!")
             return ""
         if(data.lock_write==1):
@@ -80,7 +125,7 @@ class UserManager:
         except:
             return
         data = read(next)
-        if(self.check(data.permission,1)):
+        if(not self.check(data.permission,1)):
             print("用户组没有写权限!")
             return ""
         del cur.dir_dict[src]
@@ -166,7 +211,7 @@ class UserManager:
             return
         data = read(next)
         # 判断是否有读的权限
-        if(self.check(data.permission,0)):
+        if(not self.check(data.permission,0)):
             print("用户组没有读权限!")
             return ""
         if(data.lock_write==1):
@@ -175,7 +220,12 @@ class UserManager:
         return data.content
 
     def check(self,permission: Permission,wr):
-        if(permission.gruop==self.group):
+        if(self.username=='root'):
+            return 1
+        if(permission.username == self.username):
+            per = permission.permission_cur
+            #print(per)
+        elif(permission.group==self.group):
             per = permission.permission_group
         else:
             per = permission.permission_other
