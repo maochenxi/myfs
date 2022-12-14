@@ -7,8 +7,9 @@ from textual.containers import Container, Vertical
 from textual.reactive import reactive
 from textual.widget import Widget
 from textual.widgets import Header, Footer, Input, TreeNode, Tree, Label
-
+from textual.color import Color
 from UserManager import *
+from rich.text import Text
 # importing required libraries
 import mysql.connector
 dataBase = mysql.connector.connect(
@@ -20,23 +21,30 @@ dataBase = mysql.connector.connect(
 class Name(Widget):
     """Generates a greeting."""
     who = reactive("")
-
+    
     def render(self) -> str:
-        return f"{self.who}"
+        # return f"{self.who}"
+        return Text.from_markup("[red]test[/red]")
 
 def judge(per: int) -> str:
     if per==7:
-        return 'rwx'
+        # return 'rwx'
+        return Text.from_markup(f" [yellow]r[red]w[green]x")
     elif per ==6:
-        return 'rw-'
+        # return 'rw-'
+        return Text.from_markup(f" [yellow]r[red]w[green]-")
     elif per == 5:
-        return 'r-x'
+        # return 'r-x'
+        return Text.from_markup(f" [yellow]r[red]-[green]x")
     elif per==4:
-        return 'r--'
+        # return 'r--'
+        return Text.from_markup(f" [yellow]r[red]-[green]-")
     elif per==2:
-        return '-w-'
+        # return '-w-'
+        return Text.from_markup(f" [yellow]-[red]w[green]-")
     elif per==1:
-        return '--x'
+        # return '--x'
+        return Text.from_markup(f" [yellow]-[red]-[green]x")
 
 class Session(App):
     CSS_PATH = "refresh01.css"
@@ -65,7 +73,6 @@ class Session(App):
         # log("input shell is ", self.shell)
 
     def _on_key(self, event: events.Key) -> None:
-        log(self.SCREENS)
         if event.key == 'enter':
             if not self.login:
                 #db
@@ -98,19 +105,20 @@ class Session(App):
             else:
                 self.shell = self.shell[2:]
                 if self.shell.strip(' ') == 'ls':
-                    # res = self.user.Ls_File()
                     try:
                         tree = self.query_one("Tree")
                         tree.remove()
                     except:
                         pass
-                    node = Tree(label="dir", data=None)
-                    node.auto_expand=True
+                    node = Tree(label="/", data=None)
+                    node.root.auto_expand=True
+                    node.root.expand()
                     def construct_tree(node:TreeNode,dir:int):
                         res = self.user.Ls_File(dir)
                         for i, k in res.items():
                             j = read(k).permission
-                            cur = node.add(f'{i} {j.username} {j.group} {j.time} {judge(j.permission_group)} {judge(j.permission_group)} {judge(j.permission_other)}',allow_expand=j.type=='d',expand=True)
+                            # cur = node.add(f'{i} {j.username} {j.group} {j.time} {judge(j.permission_group)} {judge(j.permission_group)} {judge(j.permission_other)}',allow_expand=j.type=='d',expand=True)
+                            cur = node.add(Text.from_markup(f"{i} [yellow]{j.username} [violet]{j.time} ").append(judge(j.permission_group)).append(judge(j.permission_other)),allow_expand=j.type=='d',expand=True)
                             if j.type=='d':
                                 construct_tree(cur,k)
                     self.mount(node)

@@ -44,11 +44,3 @@ def init_root():
 if __name__=='__main__':
     init()
     init_root()
-# with open('./Node', 'ab+') as f:
-#     f.seek(BLOCK_SIZE+1)
-#     res = f.read(BLOCK_SIZE-1)
-#     # print(res)
-#     res = res.rstrip(b'\x00')
-#     print(pickle.loads(res))
-#     f.read(1)
-#     print(pickle.loads(f.read(BLOCK_SIZE - 1)))
