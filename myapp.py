@@ -18,6 +18,7 @@ dataBase = mysql.connector.connect(
                     passwd ="mcx",
                     database = "filesystem"
                 )
+dataBase.autocommit=True
 class Name(Widget):
     """Generates a greeting."""
     who = reactive("")
@@ -118,7 +119,7 @@ class Session(App):
                         for i, k in res.items():
                             j = read(k).permission
                             # cur = node.add(f'{i} {j.username} {j.group} {j.time} {judge(j.permission_group)} {judge(j.permission_group)} {judge(j.permission_other)}',allow_expand=j.type=='d',expand=True)
-                            cur = node.add(Text.from_markup(f"{i} [yellow]{j.username} [violet]{j.time} ").append(judge(j.permission_group)).append(judge(j.permission_other)),allow_expand=j.type=='d',expand=True)
+                            cur = node.add(Text.from_markup(f"{i} [yellow]{j.username} [violet]{j.time} ").append(judge(j.permission_cur)).append(judge(j.permission_group)).append(judge(j.permission_other)),allow_expand=j.type=='d',expand=True)
                             if j.type=='d':
                                 construct_tree(cur,k)
                     self.mount(node)
@@ -177,10 +178,10 @@ class Session(App):
                         if(not isRoot):
                             pass
                         cursorObject = dataBase.cursor()
-                        cursorObject.execute('''UPDATE user SET `group` = %s where username = %s''',(group,username))
+                        cursorObject.execute('''UPDATE user SET `group` = %s where username = %s''',(group,username,))
 
                 # 添加新用户 aduser username password  
-                elif self.shell.startswith('aduser'):
+                elif self.shell.startswith('adduser'):
                     if len(self.shell.split(' ')) == 3:
                         username = self.shell.split(' ')[-2]
                         password = self.shell.split(' ')[-1]
@@ -188,7 +189,29 @@ class Session(App):
                         if(not isRoot):
                             pass
                         cursorObject = dataBase.cursor()
-                        cursorObject.execute('''INSERT INTO user (username, password, `group`) values (%s,%s,%s);''',(username,password,username))
+                        cursorObject.execute('''INSERT INTO user (username, password, `group`) values (%s,%s,%s);''',(username,password,username,))
+
+                # 删除用户 deluser username
+                elif self.shell.startswith('deluser'):
+                    if len(self.shell.split(' ')) == 2:
+                        username = self.shell.split(' ')[-1]
+                        isRoot = (self.user.username == 'root')
+                        if(not isRoot):
+                            pass
+                        cursorObject = dataBase.cursor()
+                        cursorObject.execute('''DELETE FROM user WHERE username = %s;''',(username,))
+                        print('''DELETE FROM user WHERE username = %s;''',(username,))
+                        
+
+                # 复制文件到另一个文件夹 copy filename path  
+                elif self.shell.startswith('copy'):
+                    if len(self.shell.split(' ')) == 3:
+                        self.user.copy(self.shell.split(' ')[-2],self.shell.split(' ')[-1])
+
+                # 移动文件到另一个文件夹 copy filename path  
+                elif self.shell.startswith('move'):
+                    if len(self.shell.split(' ')) == 3:
+                        self.user.copy(self.shell.split(' ')[-2],self.shell.split(' ')[-1])
 
                 self.input.value = '$ '
 

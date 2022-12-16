@@ -67,6 +67,23 @@ def write(BLOCK_IDX, data):
         edit_block(BLOCK_SIZE * i, j)
 
 
+
+
+def copyFiletoDir(username,group,fileDataNode,insertDirNode):
+    global free_nodes
+    if len(free_nodes) == 0:
+        raise NotEnoughSpace('not enough space to copy file and write')
+    dir = DirNode(fileDataNode.dirname)
+    dir.prevdir = insertDirNode.node
+    dir.permission = Permission(fileDataNode.dirname, username, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), '-', fileDataNode.permission.permission_cur, fileDataNode.permission.permission_group, fileDataNode.permission.permission_other,group)
+    dir.node = free_nodes[0]
+    dir.content = fileDataNode.content
+    insertDirNode.dir_dict[fileDataNode.dirname] = free_nodes[0]
+    write(insertDirNode.node,pickle.dumps(insertDirNode))
+    write(free_nodes[0], pickle.dumps(dir))
+    free_nodes = free_nodes[1:]
+
+
 def removeDirNode(BLOCK_IDX):
     dirNode_list = [BLOCK_IDX]
     with open('./Node', 'rb') as f:

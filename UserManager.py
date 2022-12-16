@@ -16,12 +16,51 @@ class UserManager:
         self.cwd = '/'
         # 用户当前所处目录的块地址
         self.Node = 1
+
+    # 移动文件到其他目录
+    def copy(self,filename,dirname):
+        cur = read(self.Node)
+        next = cur.dir_dict[filename]
+        data = read(next)
+        if(not self.check(data.permission,1)):
+            print("用户组没有写权限!")
+            return ""
+        c = read(1)
+        dirsplitlist = dirname.split('/')
+        for dir in dirsplitlist:
+            # 要插入dir的块地址
+            next = c.dir_dict[dir]
+            # 要插入路径的DirNode结构图
+            c= read(next)
+        copyFiletoDir(self.username,self.group,data,c)
+
+
+    # 复制文件到其他目录
+    def copy(self,filename,dirname):
+        cur = read(self.Node)
+        next = cur.dir_dict[filename]
+        data = read(next)
+        if(not self.check(data.permission,1)):
+            print("用户组没有写权限!")
+            return ""
+        c = read(1)
+        dirsplitlist = dirname.split('/')
+        for dir in dirsplitlist:
+            # 要插入dir的块地址
+            next = c.dir_dict[dir]
+            # 要插入路径的DirNode结构图
+            c= read(next)
+        copyFiletoDir(self.username,self.group,data,c)
+        self.Remove(filename)
+        
+    
     # 修改文件的权限
     def chmod(self,filename,type,permission):
         cur = read(self.Node)
         next = cur.dir_dict[filename]
         data = read(next)
         if(not(self.username==data.permission.username or self.username == 'root')):
+            print("没有权限修改")
             pass
         if(not self.check(data.permission,1)):
             print("用户组没有写权限!")
@@ -40,6 +79,7 @@ class UserManager:
         next = cur.dir_dict[filename]
         data = read(next)
         if(not(self.username==data.permission.username or self.username == 'root')):
+            print("没有权限修改")
             pass
         if(not self.check(data.permission,1)):
             print("用户组没有写权限!")
